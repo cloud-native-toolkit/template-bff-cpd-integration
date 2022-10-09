@@ -66,11 +66,6 @@ spec:
                 configMapKeyRef:
                   name: cpd-config
                   key: base-url
-            - name: CPD_API_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: cpd-config
-                  key: api-version
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

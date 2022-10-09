@@ -121,12 +121,14 @@ export class InferenceController {
   @post('/inference/predictions')
   @response(200, PREDICTIONS_RES)
   async getPredictions(
+    @requestBody(PREDICTIONS_BODY) payload: PredictionsPayload,
     @param.query.string('username') username: string,
     @param.query.string('password') password: string,
-    @requestBody(PREDICTIONS_BODY) payload: PredictionsPayload,
+    @param.query.string('model') model: string,
+    @param.query.string('version') version?: string,
   ): Promise<Predictions> {
     const token: string = (await this.inferenceService.getToken(username, password)).token;
-    return this.inferenceService.getPredictions(process.env.CPD_API_VERSION ?? '2022-10-07', [payload], token);
+    return this.inferenceService.getPredictions(model, version ?? (new Date()).toISOString().split('T')[0], [payload], token);
   }
 
 }

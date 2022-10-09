@@ -16,7 +16,7 @@ export interface Inference {
     "message": string,
     "token": string
 }>;
-  getPredictions(version:string, inputData: Array<object>, token: string): Promise<Predictions>;
+  getPredictions(model: string, version:string, inputData: Array<object>, token: string): Promise<Predictions>;
 }
 
 export class InferenceProvider implements Provider<Inference> {

@@ -34,7 +34,7 @@ const config = {
     {
       template: {
         method: 'POST',
-        url: `${CPD_BASE_URL}/ml/v4/deployments/customer_churn/predictions`,
+        url: `${CPD_BASE_URL}/ml/v4/deployments/{model:string}/predictions`,
         headers: {
           'Authorization': 'Bearer {token:string}'
         },
@@ -48,6 +48,7 @@ const config = {
       },
       functions: {
         getPredictions: [
+          'model',
           'version',
           'inputData',
           'token'
