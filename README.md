@@ -12,9 +12,9 @@
     <img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2">
 </p>
 
-# Loopback/Typescript Code Pattern
+# BFF with AI inference integration Code Pattern
 
-This is a template repository for a typescript-based Loopback micro-service for building complex APIs easily.
+This is a template repository for a typescript-based Loopback micro-service acting as a backend service that integrates with a Cloud-Pak for Data inference service.
 
 This app contains an opinionated set of components for modern web development, including:
 - [Node.js](https://nodejs.org/en/)
@@ -34,10 +34,30 @@ npm install --location=global @ibmgaragecloud/cloud-native-toolkit-cli
 
 Ensure you have the [Cloud-Native Toolkit](https://cloudnativetoolkit.dev) installed in your cluster to make this method of pipeline registry quick and easy Cloud-Native Toolkit.
 
-Use the IBM Garage for Cloud CLI to register the GIT Repo with Tekton or Jenkins, using `--tekton` flag if using Tekton:
+Create your development project using `oc sync`:
 
 ```$bash
-oc sync <project> [--tekton]
+oc sync <project>
+```
+
+Create a `cpd-config` ConfigMap with information on how to reach your Cloud Pak for Data inference service:
+
+```sh
+❯ cat <<EOF | kubectl apply -f -     
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cpd-config
+  namespace: <DEV_NAMESPACE>
+data:
+  api-version: '2022-10-07'
+  base-url: https://<YOUR_CPD_ENDPOINT>
+EOF
+```
+
+Use the IBM Garage for Cloud CLI to register the GIT Repo with Tekton or Jenkins:
+
+```$bash
 oc pipeline
 ```
 
@@ -105,6 +125,39 @@ npm run lint:fix
 
 ```sh
 npm test
+```
+
+## Add inference service
+
+Implemented in `/src/services/inference.service.ts` using Loopback [documentation](https://loopback.io/doc/en/lb4/Calling-rest-apis.html):
+
+```sh
+❯ lb4 datasource --connector rest inference --format
+? Select the connector for inference:  REST services (supported by StrongLoop)
+? Base URL for the REST service: https://<CPD_ENDPOINT>
+? Default options for the request: {"headers":{"accept":"application/json","content-type
+":"application/json"}}
+? An array of operation templates: [{"template":{"method":"POST","url":"https://<CPD_ENDPOINT>/icp4d-api/v1/authorize","body":{"username":"{username:string}","password":"{password:string}"}},"function
+s":{"getToken":["username","password"]}},{"template":{"method":"POST","url":"https://<CPD_ENDPOINT>/ml/v4/deployments/customer_churn/predictions","headers":{"Authorization":"Bearer {token:string}"},"query":{"version":"{version:string}"},"body":{"input_data":"{inputData:array}"}},"function
+s":{"getPredictions":["version","inputData","token"]}}]
+❯ lb4 service --type proxy --datasource inference inference --format
+   create src/services/inference.service.ts
+   update src/services/index.ts
+
+Service Inference was/were created in src/services
+
+Running 'npm run lint:fix' to format the code...
+❯ lb4 controller --format
+? Controller class name: inference
+Controller Inference will be created in src/controllers/inference.controller.ts
+
+? What kind of controller would you like to generate? Empty Controller
+   create src/controllers/inference.controller.ts
+   update src/controllers/index.ts
+
+Controller Inference was/were created in src/controllers
+
+Running 'npm run lint:fix' to format the code...
 ```
 
 ## What's next
