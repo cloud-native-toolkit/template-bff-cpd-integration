@@ -50,7 +50,6 @@ metadata:
   name: cpd-config
   namespace: <DEV_NAMESPACE>
 data:
-  api-version: '2022-10-07'
   base-url: https://<YOUR_CPD_ENDPOINT>
 EOF
 ```
